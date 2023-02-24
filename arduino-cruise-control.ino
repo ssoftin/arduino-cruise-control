@@ -48,7 +48,7 @@ void setup() {
   // put your setup code here, to run once:
   pinMode(PIN_SPEED, INPUT_PULLUP);
   attachInterrupt(INTERRUPT_SPEED, InterruptSpeed, FALLING);
-
+  Load();
 }
 
 // 10hz = 30km/h
@@ -62,18 +62,45 @@ void InterruptSpeed() {
   speed += (speed_new - speed) * 0.1;
 }
 
-void ControlSpeed() {
-  if (speed < 10 || millis() - speed_time_prev > 300) speed = 0;
+
+int DetectKey() {
+  int val = analogRead(PIN_KEYS);
+// on can set res  none
+// 15  22  33  54  113
+//   18  27  43  83
+  if (val < 18) return KEY_ON_OFF;
+  if (val < 27) return KEY_CANCEL;
+  if (val < 43) return KEY_COAST_SET;
+  if (val < 83) return KEY_ACC_RES;
+  return NONE;
+}
+int GetKey() {
+  static int prev = KEY_NONE;
+  static int cnt = 0;
+  static unsigned long ts = 0;
+  int val = DetectKey();
+  if (val == KEY_NONE) {
+    int res = KEY_NONE;
+    if (cnt >= KEY_VALID_READ) res = prev;
+    if (res != KEY_NONE) {
+      if (millis() - ts >= KEY_EXLONG_TIME) res += KEY_EXLONG_OFFSET;
+      else if (millis() - ts >= KEY_LONG_TIME) res += KEY_LONG_OFFSET;
+    }
+    prev = KEY_NONE;
+    cnt = 0;
+    ts = 0;
+    return res;
+  }
+  if (prev == val) {
+    cnt++;
+  } else {
+    prev = val;
+    cnt = 1;
+    ts = millis(); 
+  }
+  return KEY_NONE;
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-  ControlSpeed();
-  Mode();
-  Led();
-  Control();
-  Reley();
-}
 
 void Reley() {
   switch (mode) {
@@ -151,18 +178,6 @@ void ModeOff() {
   }
 }
 
-void ModeCalibrate() {
-  int key = GetKey();
-  switch (key) {
-    case KEY_ON_OFF_EXLONG:
-      SaveCalibration();
-    case KEY_ON_OFF:
-    case KEY_CANCEL:
-      mode = MODE_OFF;
-      return;
-  }  
-}
-
 void ModeON() {
   int key = GetKey();
   if (key == KEY_ON_OFF) {
@@ -181,6 +196,14 @@ void ModeON() {
       case KEY_CANCEL_LONG:
         mode = MODE_LIMITER;
         speed_limit = speed_cur;
+        return;
+      case KEY_COAST_SET_LONG:
+        mode = MODE_CRUISE;
+        speed_tgt = save.speed_coast;
+        return;
+      case KEY_ACC_RES_LONG:
+        mode = MODE_CRUISE;
+        speed_tgt = save.speed_acc;
         return;
     }
   }
@@ -205,6 +228,21 @@ void ModeCruise() {
     case KEY_ACC_RES:
       speed_tgt += 1;
       return;
+    case KEY_COAST_SET_LONG:
+      speed_tgt = save.speed_coast;
+      return;
+    case KEY_ACC_RES_LONG:
+      speed_tgt = save.speed_acc;
+      return;
+    case KEY_COAST_SET_EXLONG:
+      save.speed_coast = speed_tgt;
+      Save();
+      return;
+    case KEY_ACC_RES_EXLONG:
+      save.speed_acc = speed_tgt;
+      Save();
+      return;
+      
   }
 }
 
@@ -220,42 +258,44 @@ void ModeLimiter() {
   }
 }
 
-
-int DetectKey() {
-  int val = analogRead(PIN_KEYS);
-// on can set res  none
-// 15  22  33  54  113
-//   18  27  43  83
-  if (val < 18) return KEY_ON_OFF;
-  if (val < 27) return KEY_CANCEL;
-  if (val < 43) return KEY_COAST_SET;
-  if (val < 83) return KEY_ACC_RES;
-  return NONE;
+struct SAVE {
+  speed_coast
+  speed_acc
+  throttle1_max
+  throttle1_min
+  throttle2_max
+  throttle2_min
+  throttle12_avgrate
+};
+SAVE save;
+void Load() {
+}
+void Save() {
 }
 
-int GetKey() {
-  static int prev = KEY_NONE;
-  static int cnt = 0;
-  static unsigned long ts = 0;
-  int val = DetectKey();
-  if (val == KEY_NONE) {
-    int res = KEY_NONE;
-    if (cnt >= KEY_VALID_READ) res = prev;
-    if (res != KEY_NONE) {
-      if (millis() - ts >= KEY_EXLONG_TIME) res += KEY_EXLONG_OFFSET;
-      else if (millis() - ts >= KEY_LONG_TIME) res += KEY_LONG_OFFSET;
-    }
-    prev = KEY_NONE;
-    cnt = 0;
-    ts = 0;
-    return res;
+void ModeCalibrate() {
+  int key = GetKey();
+  switch (key) {
+    case KEY_ON_OFF_EXLONG:
+      mode = MODE_OFF;
+      Save();
+      return;
+    case KEY_ON_OFF:
+    case KEY_CANCEL:
+      mode = MODE_OFF;
+      Load();
+      return;
   }
-  if (prev == val) {
-    cnt++;
-  } else {
-    prev = val;
-    cnt = 1;
-    ts = millis(); 
-  }
-  return KEY_NONE;
+  
+  
+}
+
+
+
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  Mode();
+  Led();
+  Reley();
 }
