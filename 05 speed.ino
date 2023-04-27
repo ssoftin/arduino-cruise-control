@@ -7,10 +7,6 @@
 // 40hz: d = 25
 // 750 / d = km/h
 
-float speed = 0;
-float speed_tgt;
-float speed_limit;
-
 unsigned long pulsebuf[PULSEBUFSIZE];
 volatile int bufhead = 0;
 

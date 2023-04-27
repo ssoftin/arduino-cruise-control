@@ -36,7 +36,6 @@ void SetAcc100(int acc100) {
 }
 
 
-
 void StartCalibrate() {
   save.acc0max = 0;
   save.acc0min = 1024;
@@ -46,10 +45,6 @@ void StartCalibrate() {
   mode = MODE_CALIBRATE;
 }
 
-// 161 75
-// 922 453
-// 0.786 0.366
-// 4.501 2.211
 void Calibrate() {
   int acc0 = analogRead(PIN0);
   int acc1 = analogRead(PIN1);

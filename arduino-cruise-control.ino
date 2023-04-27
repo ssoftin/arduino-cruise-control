@@ -23,8 +23,9 @@
 
 
 
-
-
+float speed;
+int acc100;
+int calc_acc100;
 
 
 
@@ -61,6 +62,9 @@ void print() {
 
 
 void loop() {
+  speed = GetSpeedInterval(100);
+  acc100 = GetAcc100();
+
   Led();
   Reley();
   PrintSpeed();
@@ -69,6 +73,4 @@ void loop() {
 //  print();
 
   delay(1);
-
-  
 }
