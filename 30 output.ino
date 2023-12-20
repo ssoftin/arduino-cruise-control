@@ -54,8 +54,26 @@ void Reley() {
   }
 }
 
+
+int blink = 0;
+void Blink(int b) {
+  blink = b * 2;
+}
+
 void Led() {
-  switch (mode) {
+  int m = mode;
+  if (blink) {
+    
+    static unsigned long blink_time = 0;
+    unsigned long cur_time = millis();
+    if (cur_time - blink_time > 200) {
+      blink_time = cur_time;
+      blink--;
+    }
+    if (blink&1) m = MODE_OFF;
+  }
+
+  switch (m) {
     case MODE_OFF:
       digitalWrite(PIN_LED_CRUISE, 0);
       digitalWrite(PIN_LED_LIMITER, 0);
@@ -72,9 +90,15 @@ void Led() {
       digitalWrite(PIN_LED_SET, 1 & (millis() >> 8));
       return;
     case MODE_CRUISE:
-      digitalWrite(PIN_LED_CRUISE, 1);
-      digitalWrite(PIN_LED_LIMITER, 0);
-      digitalWrite(PIN_LED_SET, 1);
+      if (submode == SUBMODE_BLINK) {
+        digitalWrite(PIN_LED_CRUISE, 1);
+        digitalWrite(PIN_LED_LIMITER, 0);
+        digitalWrite(PIN_LED_SET, 1 & (millis() >> 8));
+      } else {
+        digitalWrite(PIN_LED_CRUISE, 1);
+        digitalWrite(PIN_LED_LIMITER, 0);
+        digitalWrite(PIN_LED_SET, 1);
+      }
       return;
     case MODE_LIMITER:
       digitalWrite(PIN_LED_CRUISE, 1);

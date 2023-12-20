@@ -1,20 +1,29 @@
 
 #define PIN_BRAKE 3 // yellow wire
+#define PIN_TYPE  8 // pin to choose m/h or km/h 
 
 enum {
   MODE_OFF,
   MODE_ON,
   MODE_CALIBRATE,
   MODE_CRUISE,
-  MODE_LIMITER  
+  MODE_LIMITER,
+  SUBMODE_OFF,
+  SUBMODE_BLINK  
 };
 
 int mode = MODE_OFF;
-
+int submode = SUBMODE_OFF;
 
 void InitMode() {
     pinMode(PIN_BRAKE, INPUT_PULLUP);
+    pinMode(PIN_TYPE, INPUT_PULLUP);    
     if (save.key != MEMORY_KEY) StartCalibrate();
+}
+
+float Unit() {
+  if (digitalRead(PIN_TYPE)) return 1.60934; // miles/kilometers coefficient
+  return 1;
 }
 
 
@@ -54,9 +63,6 @@ void ModeOff() {
 }
 
 void ModeOn() {
-  calc_acc100 = acc100;
-  SetAcc100(acc100);
-
   int key = GetKey();
   if (key == KEY_ON_OFF) {
       mode = MODE_OFF;
@@ -66,19 +72,19 @@ void ModeOn() {
   if (!digitalRead(PIN_BRAKE)) {
     switch (key) {
       case KEY_COAST_SET:
-        StartCruise();        
+        StartCruise(speed);        
         return;
       case KEY_ACC_RES:
-//        StartCruise();
+        StartCruise(tgt_speed);
         return;
-      case KEY_CANCEL_LONG:
-        mode = MODE_LIMITER;
-        return;
+      // case KEY_CANCEL_LONG:
+      //   StartLimiter(speed);
+      //   return;
       case KEY_COAST_SET_LONG:
-//        StartCruise(save.speed_coast);
+        StartCruise(save.speed_coast);
         return;
       case KEY_ACC_RES_LONG:
-//        StartCruise(save.speed_acc);
+        StartCruise(save.speed_acc);
         return;
     }
   }
@@ -86,8 +92,6 @@ void ModeOn() {
 
 
 void ModeCruise() {
-  Cruise();
-
   if (digitalRead(PIN_BRAKE)) {
     mode = MODE_ON;
     return;
@@ -101,31 +105,43 @@ void ModeCruise() {
       mode = MODE_ON;
       return;
     case KEY_COAST_SET:
-//      speed_tgt -= 1;
+      if (tgt_speed > MIN_SPEED) {
+        tgt_speed -= Unit();
+        Blink(1);
+      }
       return;
     case KEY_ACC_RES:
-//      speed_tgt += 1;
+      tgt_speed += Unit();
+      Blink(1);
       return;
     case KEY_COAST_SET_LONG:
-//      if (save.speed_coast) speed_tgt = save.speed_coast;
+      if (save.speed_coast) {
+        tgt_speed = save.speed_coast;
+        Blink(2);
+      }
       return;
     case KEY_ACC_RES_LONG:
-//      if (save.speed_acc) speed_tgt = save.speed_acc;
+      if (save.speed_acc) {
+        tgt_speed = save.speed_acc;
+        Blink(2);
+      }
       return;
     case KEY_COAST_SET_EXLONG:
-//      save.speed_coast = speed_tgt;
-//      Save();
+      save.speed_coast = tgt_speed;
+      Save();
+      Blink(4);
       return;
     case KEY_ACC_RES_EXLONG:
-//      save.speed_acc = speed_tgt;
-//      Save();
+      save.speed_acc = tgt_speed;
+      Save();
+      Blink(4);
       return;    
   }
 }
 
 void ModeLimiter() {
-  calc_acc100 = acc100;
-  SetAcc100(acc100);
+  acc100calc = acc100;
+  SetAcc100(acc100calc);
 
   int key = GetKey();
   switch (key) {

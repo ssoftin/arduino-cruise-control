@@ -20,12 +20,14 @@
 // blue   - 
 // violet - 
 
-
-
+#define MIN_SPEED 20
+#define MIN_ACC 2
+#define MAX_ACC 40
 
 float speed;
+float tgt_speed;
 int acc100;
-int calc_acc100;
+int acc100calc;
 
 
 
@@ -42,6 +44,7 @@ void setup() {
   InitKeys();
   InitOutput();
   InitAcc();
+  InitCruise();
 }
 
 
@@ -69,6 +72,7 @@ void loop() {
   Reley();
   PrintSpeed();
   Mode();
+  Cruise();
 
 //  print();
 

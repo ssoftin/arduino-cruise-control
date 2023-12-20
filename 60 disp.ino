@@ -119,7 +119,6 @@ const uint8_t * const frames[] = {
 
 
 #define PIN_BRIGHT 9 
-#define PIN_TYPE   8  // pin to choose m/h or km/h 
 #define Y_POSITION 8  // vertical position, center screen value: 4
 
 
@@ -129,7 +128,6 @@ GyverOLED<SSD1306_128x64, OLED_NO_BUFFER> oled; // if you have not default I2C a
 
 void InitDisp() {
   pinMode(PIN_BRIGHT, INPUT_PULLUP);
-  pinMode(PIN_TYPE, INPUT_PULLUP);
 
   oled.init();
   oled.flipV(true);  // flip screen 180deg
@@ -146,14 +144,12 @@ void PrintSpeed() {
   // if (time - prev < 100) return;
   // prev = time;
 
-  
-  float miles = 1;
-  if (digitalRead(PIN_TYPE)) miles = 1.60934; // miles/kilometers coefficient
-  
+  float unit = Unit();  
+
   if (digitalRead(PIN_BRIGHT)) oled.setContrast(0);
   else                         oled.setContrast(255);
   
-  unsigned int speed = GetSpeedInterval(500) / miles;
+  unsigned int speed = GetSpeedInterval(500) / unit;
   speed = speed % 999;
   unsigned int d1, d2, d3;
   d1 = speed / 100;		          // 100
@@ -164,8 +160,8 @@ void PrintSpeed() {
     oled.drawBitmap(4, Y_POSITION, frames[d1], 40, 56);
   } else {
     oled.clear(4, Y_POSITION + 8, 43, Y_POSITION + 39);
-    if (miles == 1) oled.drawBitmap(4, Y_POSITION + 40, frame_kmh_40x16, 40, 16); // kilometers
-    else            oled.drawBitmap(4, Y_POSITION + 40, frame_mh_40x16, 40, 16);  // miles
+    if (unit == 1) oled.drawBitmap(4, Y_POSITION + 40, frame_kmh_40x16, 40, 16); // kilometers
+    else           oled.drawBitmap(4, Y_POSITION + 40, frame_mh_40x16, 40, 16);  // miles
   }
   
   if (d1 || d2) oled.drawBitmap(44, Y_POSITION, frames[d2], 40, 56);
@@ -176,7 +172,9 @@ void PrintSpeed() {
   oled.setScale(2);
   oled.home();
   oled.textMode(BUF_REPLACE);
-  oled.print(calc_acc100);
+  oled.print(acc100);
   oled.print("  ");
-
+  oled.setCursor(0, 1);
+  oled.print(acc100calc);
+  oled.print("  ");
 }
