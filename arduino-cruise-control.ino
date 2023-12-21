@@ -22,7 +22,7 @@
 
 #define MIN_SPEED 20
 #define MIN_ACC 2
-#define MAX_ACC 40
+#define MAX_ACC 30
 
 float speed;
 float tgt_speed;
@@ -65,7 +65,7 @@ void print() {
 
 
 void loop() {
-  speed = GetSpeedInterval(100);
+  speed = GetSpeedLast(); //GetSpeedInterval(100);
   acc100 = GetAcc100();
 
   Led();

@@ -1,32 +1,12 @@
 #include "GyverPID.h"
 
 /*
-
-err = tgt - speed
 t = 0.5
 
-P = err
-I += err * t
-D = 0.20 * (speed - prev-speed) / t 
+P = tgt - speed
+I += 0.5 * (tgt - speed) * t
+D = 0.20 * (prev-speed - speed) / t 
 P + I + D
-
-
-start:
-tgt   30
-
-speed 30
-P 0  
-I 6
-D 0
-acc 6
-
-speed 29
-P 1
-I 6.5
-D -0.4
-acc 7
-
-
 
 */
 
@@ -37,9 +17,10 @@ GyverPID pid;
 void InitCruise() {
   pid.setLimits(MIN_ACC, MAX_ACC);
   pid.setDt(500);
-  pid.Kp = 1;
-  pid.Ki = 0.5;
-  pid.Kd = 0.2;
+//              //overspeed downhill//less swing//swing// +
+  pid.Kp = 0.7; //0.7;              //0.6;      //0.5; //0.7; //1;
+  pid.Ki = 0.7; //0.7;              //0.7;      //1;   //0.7; //0.5;
+  pid.Kd = 0.5; //0.7;              //0.7;      //1;   //0.5; //0.2;
 }
 
 

@@ -43,3 +43,9 @@ float GetSpeedInterval(unsigned long l) {
   if (d == 0) return 0;
   return 750.0 * i / d;
 }
+
+float GetSpeedLast() {
+  unsigned long d = buf(head) - buf(head-1);
+  if (d == 0) return 0;
+  return 750.0 / d;
+}

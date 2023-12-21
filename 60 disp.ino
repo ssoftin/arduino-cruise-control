@@ -159,7 +159,7 @@ void PrintSpeed() {
   if (d1) {
     oled.drawBitmap(4, Y_POSITION, frames[d1], 40, 56);
   } else {
-    oled.clear(4, Y_POSITION + 8, 43, Y_POSITION + 39);
+//    oled.clear(4, Y_POSITION + 8, 43, Y_POSITION + 39);
     if (unit == 1) oled.drawBitmap(4, Y_POSITION + 40, frame_kmh_40x16, 40, 16); // kilometers
     else           oled.drawBitmap(4, Y_POSITION + 40, frame_mh_40x16, 40, 16);  // miles
   }
@@ -174,7 +174,7 @@ void PrintSpeed() {
   oled.textMode(BUF_REPLACE);
   oled.print(acc100);
   oled.print("  ");
-  oled.setCursor(0, 1);
+  oled.setCursor(0, 2);
   oled.print(acc100calc);
   oled.print("  ");
 }
