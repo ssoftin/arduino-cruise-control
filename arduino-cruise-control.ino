@@ -65,7 +65,7 @@ void print() {
 
 
 void loop() {
-  speed = GetSpeedLast(); //GetSpeedInterval(100);
+  speed = GetSpeedInterval(100);
   acc100 = GetAcc100();
 
   Led();

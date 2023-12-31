@@ -17,10 +17,15 @@ GyverPID pid;
 void InitCruise() {
   pid.setLimits(MIN_ACC, MAX_ACC);
   pid.setDt(500);
-//              //overspeed downhill//less swing//swing// +
-  pid.Kp = 0.7; //0.7;              //0.6;      //0.5; //0.7; //1;
-  pid.Ki = 0.7; //0.7;              //0.7;      //1;   //0.7; //0.5;
-  pid.Kd = 0.5; //0.7;              //0.7;      //1;   //0.5; //0.2;
+// lack of impact//total swing//overspd downhil//less swing//swing// +
+//Kp= 0.5;       //0.7;       //0.7;           //0.6;      //0.5; //0.7; //1;
+//Ki= 0.5;       //0.7;       //0.7;           //0.7;      //1;   //0.7; //0.5;
+//Kd= 0.5;       //1;         //0.7;           //0.7;      //1;   //0.5; //0.2;
+
+//
+  pid.Kp = 1;
+  pid.Ki = 0.5;
+  pid.Kd = 0.5;
 }
 
 
