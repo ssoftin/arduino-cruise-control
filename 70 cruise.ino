@@ -3,13 +3,21 @@
 /*
 t = 0.5
 
-P = tgt - speed
-I += 0.5 * (tgt - speed) * t
-D = 0.20 * (prev-speed - speed) / t 
+P = Pk * (tgt - speed)
+I += Ik * (tgt - speed) * t
+D = Dk * (prev-speed - speed) / t 
 P + I + D
 
+// lack of impact//total swing//overspd downhil//less swing//swing// +
+//Kp= 0.5;       //0.7;       //0.7;           //0.6;      //0.5; //0.7; //1;
+//Ki= 0.5;       //0.7;       //0.7;           //0.7;      //1;   //0.7; //0.5;
+//Kd= 0.5;       //1;         //0.7;           //0.7;      //1;   //0.5; //0.2;
 */
 
+#define PID_KP 1
+#define PID_KI 0.5
+#define PID_KI_DOWN 1
+#define PID_KD 0.5
 
 
 GyverPID pid;
@@ -17,15 +25,9 @@ GyverPID pid;
 void InitCruise() {
   pid.setLimits(MIN_ACC, MAX_ACC);
   pid.setDt(500);
-// lack of impact//total swing//overspd downhil//less swing//swing// +
-//Kp= 0.5;       //0.7;       //0.7;           //0.6;      //0.5; //0.7; //1;
-//Ki= 0.5;       //0.7;       //0.7;           //0.7;      //1;   //0.7; //0.5;
-//Kd= 0.5;       //1;         //0.7;           //0.7;      //1;   //0.5; //0.2;
-
-//
-  pid.Kp = 1;
-  pid.Ki = 0.5;
-  pid.Kd = 0.5;
+  pid.Kp = PID_KP;
+  pid.Ki = PID_KI;
+  pid.Kd = PID_KD;
 }
 
 
@@ -52,7 +54,14 @@ void Cruise() {
     pid.setpoint = speed;
     pid.integral = acc100;
   }
-    
+  
+  // static unsigned long last_increase_time = 0;
+  // if (speed <= tgt_speed) last_increase_time = millis();
+  // if (millis() - last_increase_time >= 2000) pid.integral = 0;
+  
+  if (speed <= tgt_speed) pid.Ki = PID_KI;
+  else                    pid.Ki = PID_KI_DOWN;
+
   pid.input = speed;
   acc100calc = pid.getResultTimer();
 
