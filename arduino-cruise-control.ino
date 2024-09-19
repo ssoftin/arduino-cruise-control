@@ -22,7 +22,7 @@
 
 #define MIN_SPEED 20
 #define MIN_ACC 2
-#define MAX_ACC 30
+#define MAX_ACC 35
 
 float speed;
 float tgt_speed;

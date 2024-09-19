@@ -7,7 +7,6 @@ enum {
   MODE_ON,
   MODE_CALIBRATE,
   MODE_CRUISE,
-  MODE_LIMITER,
   SUBMODE_OFF,
   SUBMODE_BLINK  
 };
@@ -21,9 +20,9 @@ void InitMode() {
     if (save.key != MEMORY_KEY) StartCalibrate();
 }
 
-float Unit() {
-  if (digitalRead(PIN_TYPE)) return 1.60934; // miles/kilometers coefficient
-  return 1;
+float Unit() {  // with new wheels 74 looks like 70 - add multiplier
+  if (digitalRead(PIN_TYPE)) return 1.70130; //1.60934; // miles/kilometers
+  return 1.05714; //1
 }
 
 
@@ -39,11 +38,7 @@ void Mode() {
       ModeCalibrate();
       return;  
     case MODE_CRUISE:
-//      ModeManual();
       ModeCruise();
-      return;  
-    case MODE_LIMITER:
-      ModeLimiter();
       return;  
   }
 }
@@ -77,9 +72,6 @@ void ModeOn() {
       case KEY_ACC_RES:
         StartCruise(tgt_speed);
         return;
-      // case KEY_CANCEL_LONG:
-      //   StartLimiter(speed);
-      //   return;
       case KEY_COAST_SET_LONG:
         StartCruise(save.speed_coast);
         return;
@@ -138,51 +130,6 @@ void ModeCruise() {
       return;    
   }
 }
-
-void ModeLimiter() {
-  acc100calc = acc100;
-  SetAcc100(acc100calc);
-
-  int key = GetKey();
-  switch (key) {
-    case KEY_ON_OFF:
-      mode = MODE_OFF;
-      return;
-    case KEY_CANCEL:
-      mode = MODE_ON;
-      return;
-  }
-}
-
-/*
-void ModeManual() {
-  SetAcc100(acc100);
-
-  if (digitalRead(PIN_BRAKE)) {
-      mode = MODE_ON;
-      return;
-  }
-
-  int key = GetKey();
-  switch (key) {
-    case KEY_ON_OFF:
-      mode = MODE_OFF;
-      acc100 = 0;
-      return;
-    case KEY_CANCEL:
-      mode = MODE_ON;
-      acc100 = 0;
-      return;
-    case KEY_COAST_SET:
-      if (acc100 > 0) acc100--;     
-      return;
-    case KEY_ACC_RES:
-      if (acc100 < 100) acc100++;
-      mode = MODE_CRUISE;
-      return;
-  }
-}
-*/
 
 void ModeCalibrate() {
   Calibrate();

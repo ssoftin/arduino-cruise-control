@@ -48,7 +48,6 @@ void Reley() {
       digitalWrite(PIN_RELEY, 1);
       return;  
     case MODE_CRUISE:
-    case MODE_LIMITER:
       digitalWrite(PIN_RELEY, 0);
       return;  
   }
@@ -100,10 +99,5 @@ void Led() {
         digitalWrite(PIN_LED_SET, 1);
       }
       return;
-    case MODE_LIMITER:
-      digitalWrite(PIN_LED_CRUISE, 1);
-      digitalWrite(PIN_LED_LIMITER, 1);
-      digitalWrite(PIN_LED_SET, 0);
-      return;  
   }
 }
