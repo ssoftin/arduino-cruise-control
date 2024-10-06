@@ -21,8 +21,8 @@ void InitMode() {
 }
 
 float Unit() {  // with new wheels 74 looks like 70 - add multiplier
-  if (digitalRead(PIN_TYPE)) return 1.70130; //1.60934; // miles/kilometers
-  return 1.05714; //1
+  if (digitalRead(PIN_TYPE)) return 1.52235; //1.60934; // miles/kilometers
+  return 0.94595; //1
 }
 
 
