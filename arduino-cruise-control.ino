@@ -39,6 +39,7 @@ void setup() {
 
   Load();
   InitSpeed();
+  InitMenu();
   InitDisp();
   InitMode();
   InitKeys();
@@ -50,31 +51,17 @@ void setup() {
 
 
 
-void print() {
-  static unsigned long prev = 0;
-  unsigned long t = millis();
-  if (t - prev < 500) return;
-  prev = t;
-
-
-  Serial.println(GetSpeedInterval(500));
-  
-}
-
-
-
-
 void loop() {
-  speed = GetSpeedInterval(100);
+//  speed = GetSpeedInterval(100);
+  speed = GetSpeedPulses(5);
   acc100 = GetAcc100();
 
   Led();
   Reley();
-  PrintSpeed();
+//  PrintSpeed();
+  PrintDebug();
   Mode();
   Cruise();
-
-//  print();
 
   delay(1);
 }

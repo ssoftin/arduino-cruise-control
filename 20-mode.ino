@@ -1,18 +1,20 @@
 
 #define PIN_BRAKE 3 // yellow wire
-#define PIN_TYPE  8 // pin to choose m/h or km/h 
 
 enum {
   MODE_OFF,
   MODE_ON,
   MODE_CALIBRATE,
-  MODE_CRUISE,
-  SUBMODE_OFF,
-  SUBMODE_BLINK  
+  MODE_CRUISE
+};
+
+enum {
+  SUBMODE_NO,
+  SUBMODE_SETTINGS
 };
 
 int mode = MODE_OFF;
-int submode = SUBMODE_OFF;
+int sub_mode = SUBMODE_NO;
 
 void InitMode() {
     pinMode(PIN_BRAKE, INPUT_PULLUP);
@@ -20,13 +22,15 @@ void InitMode() {
     if (save.key != MEMORY_KEY) StartCalibrate();
 }
 
-float Unit() {  // with new wheels 74 looks like 70 - add multiplier
-  if (digitalRead(PIN_TYPE)) return 1.52235; //1.60934; // miles/kilometers
-  return 0.94595; //1
-}
-
-
 void Mode() {
+  switch (sub_mode) {
+    case SUBMODE_SETTINGS:
+      SubModeSettings();
+      return;
+    default:
+      break;
+  }
+
   switch (mode) {
     case MODE_OFF:
       ModeOff();
@@ -78,6 +82,10 @@ void ModeOn() {
       case KEY_ACC_RES_LONG:
         StartCruise(save.speed_acc);
         return;
+      case KEY_CANCEL_LONG:
+        cursor = 0;
+        sub_mode = SUBMODE_SETTINGS;
+        return;      
     }
   }
 }
@@ -95,6 +103,10 @@ void ModeCruise() {
       return;
     case KEY_CANCEL:
       mode = MODE_ON;
+      return;
+    case KEY_CANCEL_LONG:
+      cursor = 0;
+      sub_mode = SUBMODE_SETTINGS;
       return;
     case KEY_COAST_SET:
       if (tgt_speed > MIN_SPEED) {
@@ -128,6 +140,39 @@ void ModeCruise() {
       Save();
       Blink(4);
       return;    
+  }
+}
+
+void SubModeSettings() {
+  if (digitalRead(PIN_BRAKE)) {
+    sub_mode = SUBMODE_NO;
+    return;
+  }
+  int key = GetKey();
+  switch (key) {
+    case KEY_ON_OFF:
+    case KEY_CANCEL:
+      sub_mode = SUBMODE_NO;
+      return;
+    case KEY_CANCEL_LONG:
+      cursor = -1;
+      sub_mode = SUBMODE_NO;
+      Save();
+      return;
+    case KEY_COAST_SET:
+      *(menu[cursor].data) -= menu[cursor].step;
+      return;
+    case KEY_ACC_RES:
+      *(menu[cursor].data) += menu[cursor].step;
+      return;
+    case KEY_COAST_SET_LONG:
+      cursor ++;
+      cursor %= MENU_SIZE;
+      return;
+    case KEY_ACC_RES_LONG:
+      cursor --;
+      cursor %= MENU_SIZE;
+      return;
   }
 }
 

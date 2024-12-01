@@ -135,8 +135,38 @@ void InitDisp() {
   oled.clear();
 }
 
+void PrintDebug() {
+  if (digitalRead(PIN_BRIGHT)) oled.setContrast(0);
+  else                         oled.setContrast(255);
 
-// converts speed to miles if requred and
+  oled.textMode(BUF_REPLACE);
+
+#define SCALE_MENU 2
+  oled.setScale(SCALE_MENU);
+  for (int i = 0; i < MENU_SIZE; i++) {
+    oled.setCursor(0, i * SCALE_MENU);
+    oled.invertText(i == cursor);
+    oled.print(menu[i].sym);
+    oled.print(*menu[i].data);
+  }
+
+  float unit = Unit();  
+  unsigned int speed = GetSpeedInterval(500) / unit;
+
+  oled.setCursor(32, 0);
+  oled.print(acc100calc);
+  oled.print("  ");
+
+#define SCALE_SPEED 3
+  oled.setScale(SCALE_SPEED);
+  oled.setCursor(32, SCALE_SPEED * 2);
+  oled.print(speed);
+  oled.print("  ");
+}
+
+
+
+// convert speed to miles if requred and
 // print images of digits to the screen
 void PrintSpeed() {
   // static unsigned long prev = 0;
@@ -159,8 +189,8 @@ void PrintSpeed() {
   if (d1) {
     oled.drawBitmap(4, Y_POSITION, frames[d1], 40, 56);
   } else {
-//    oled.clear(4, Y_POSITION + 8, 43, Y_POSITION + 39);
-    if (unit == 1) oled.drawBitmap(4, Y_POSITION + 40, frame_kmh_40x16, 40, 16); // kilometers
+// debug print    oled.clear(4, Y_POSITION + 8, 43, Y_POSITION + 39);
+    if (unit <= 1) oled.drawBitmap(4, Y_POSITION + 40, frame_kmh_40x16, 40, 16); // kilometers
     else           oled.drawBitmap(4, Y_POSITION + 40, frame_mh_40x16, 40, 16);  // miles
   }
   
@@ -168,7 +198,7 @@ void PrintSpeed() {
   else          oled.clear(44, Y_POSITION, 83, Y_POSITION + 55);
                 oled.drawBitmap(84, Y_POSITION, frames[d3], 40, 56);
 
-
+// debug print
   oled.setScale(2);
   oled.home();
   oled.textMode(BUF_REPLACE);

@@ -26,20 +26,15 @@ Kd  0.5       0.7
 
 
 #define PID_KP 1
-#define PID_KP_DOWN 1.5
 #define PID_KI 0.5
-#define PID_KI_DOWN 1
 #define PID_KD 0.7
+#define PID_DT 500
 
 
 GyverPID pid;
 
 void InitCruise() {
   pid.setLimits(MIN_ACC, MAX_ACC);
-  pid.setDt(500);
-  pid.Kp = PID_KP;
-  pid.Ki = PID_KI;
-  pid.Kd = PID_KD;
 }
 
 
@@ -59,22 +54,19 @@ void Cruise() {
     pid.integral = acc100;
   }
 
-  if (speed <= tgt_speed) {
-    pid.Kp = PID_KP;
-    pid.Ki = PID_KI;
-  } else {
-    pid.Kp = PID_KP_DOWN;
-    pid.Ki = PID_KI_DOWN;
-  }
+  pid.setDt(save.pid_dt);
+  pid.Kp = save.pid_kp;
+  pid.Ki = save.pid_ki;
+  pid.Kd = save.pid_kd;
 
   pid.input = speed;
   acc100calc = pid.getResultTimer();
 
   if (mode == MODE_CRUISE && acc100 > acc100calc) {
     SetAcc100(acc100);
-    submode = SUBMODE_BLINK;
+    led_mode = LED_CRUISE_BLINK;
   } else {
     SetAcc100(acc100calc);
-    submode = SUBMODE_OFF;
+    led_mode = LED_NORMAL;
   }
 }

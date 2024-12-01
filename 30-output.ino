@@ -3,6 +3,12 @@
 #define PIN_LED_LIMITER 7 // violet wire
 #define PIN_LED_SET     5 // blue wire
 
+enum {
+  LED_NORMAL,
+  LED_CRUISE_BLINK
+};
+
+int led_mode = LED_NORMAL;
 
 void InitOutput() {
   pinMode(PIN_RELEY, OUTPUT);
@@ -89,7 +95,7 @@ void Led() {
       digitalWrite(PIN_LED_SET, 1 & (millis() >> 8));
       return;
     case MODE_CRUISE:
-      if (submode == SUBMODE_BLINK) {
+      if (led_mode == LED_CRUISE_BLINK) {
         digitalWrite(PIN_LED_CRUISE, 1);
         digitalWrite(PIN_LED_LIMITER, 0);
         digitalWrite(PIN_LED_SET, 1 & (millis() >> 8));
@@ -98,6 +104,5 @@ void Led() {
         digitalWrite(PIN_LED_LIMITER, 0);
         digitalWrite(PIN_LED_SET, 1);
       }
-      return;
   }
 }
