@@ -145,6 +145,7 @@ void ModeCruise() {
 
 void SubModeSettings() {
   if (digitalRead(PIN_BRAKE)) {
+    cursor = 255;
     sub_mode = SUBMODE_NO;
     return;
   }
@@ -152,10 +153,11 @@ void SubModeSettings() {
   switch (key) {
     case KEY_ON_OFF:
     case KEY_CANCEL:
+      cursor = 255;
       sub_mode = SUBMODE_NO;
       return;
     case KEY_CANCEL_LONG:
-      cursor = -1;
+      cursor = 255;
       sub_mode = SUBMODE_NO;
       Save();
       return;

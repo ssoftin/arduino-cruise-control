@@ -8,7 +8,7 @@ struct Menu {
 
 #define MENU_SIZE 4
 Menu menu[MENU_SIZE];
-int cursor = -1;
+unsigned int cursor = 255;
 
 void InitMenu() {
   menu[0].sym = 'p';
@@ -25,5 +25,5 @@ void InitMenu() {
 
   menu[3].sym = 't';
   menu[3].data = &save.pid_dt;
-  menu[3].step = 100;
+  menu[3].step = 50;
 }

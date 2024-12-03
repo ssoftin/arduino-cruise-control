@@ -149,17 +149,18 @@ void PrintDebug() {
     oled.print(menu[i].sym);
     oled.print(*menu[i].data);
   }
+  oled.invertText(false);
 
   float unit = Unit();  
   unsigned int speed = GetSpeedInterval(500) / unit;
 
-  oled.setCursor(32, 0);
+  oled.setCursorXY(74, 0);
   oled.print(acc100calc);
   oled.print("  ");
 
 #define SCALE_SPEED 3
   oled.setScale(SCALE_SPEED);
-  oled.setCursor(32, SCALE_SPEED * 2);
+  oled.setCursorXY(74, 20);
   oled.print(speed);
   oled.print("  ");
 }
